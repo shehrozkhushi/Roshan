@@ -10,8 +10,14 @@ import { ObjectId, type Collection } from "mongodb";
 import { absoluteUrl } from "@/lib/absolute-url";
 import { getDatabase } from "@/lib/mongodb";
 
-export const SESSION_COOKIE =
-  process.env.NODE_ENV === "production" ? "__Host-roshan_session" : "roshan_session";
+const configuredAppUrl = absoluteUrl(
+  process.env.APP_ORIGIN ?? process.env.NEXT_PUBLIC_SITE_URL,
+);
+const useSecureCookies = configuredAppUrl.protocol === "https:";
+
+export const SESSION_COOKIE = useSecureCookies
+  ? "__Host-roshan_session"
+  : "roshan_session";
 const SESSION_LENGTH_MS = 7 * 24 * 60 * 60 * 1000;
 export const VERIFICATION_CODE_LENGTH = 6;
 export const VERIFICATION_CODE_TTL_MS = 10 * 60 * 1000;
@@ -187,7 +193,7 @@ export async function startUserSession(userId: ObjectId) {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: useSecureCookies,
     sameSite: "lax",
     path: "/",
     expires: expiresAt,
