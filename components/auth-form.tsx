@@ -21,7 +21,6 @@ type PendingSignup = {
   name: string;
   email: string;
   password: string;
-  website: string;
   locale: Locale;
 };
 
@@ -149,7 +148,6 @@ export function AuthForm({
         name: mode === "signup" ? values.name : undefined,
         email: values.email,
         password: values.password,
-        website: values.website,
         ...(mode === "signup" ? { locale } : {}),
       };
       const response = await fetch(`/api/auth/${mode}`, {
@@ -168,7 +166,6 @@ export function AuthForm({
           name: values.name.trim(),
           email,
           password: values.password,
-          website: values.website,
           locale,
         };
         setVerificationEmail(email);
@@ -419,6 +416,7 @@ export function AuthForm({
             id="auth-name"
             name="name"
             type="text"
+            defaultValue=""
             autoComplete="name"
             maxLength={60}
             placeholder={copy.signup.namePlaceholder}
@@ -440,6 +438,7 @@ export function AuthForm({
           id="auth-email"
           name="email"
           type="email"
+          defaultValue=""
           inputMode="email"
           dir="ltr"
           autoComplete="email"
@@ -462,6 +461,7 @@ export function AuthForm({
           id="auth-password"
           name="password"
           type="password"
+          defaultValue=""
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           minLength={8}
           maxLength={72}
@@ -484,6 +484,7 @@ export function AuthForm({
             id="auth-confirm-password"
             name="confirmPassword"
             type="password"
+            defaultValue=""
             autoComplete="new-password"
             minLength={8}
             maxLength={72}
@@ -503,17 +504,6 @@ export function AuthForm({
           )}
         </div>
       )}
-
-      <div className="honeypot" aria-hidden="true">
-        <label htmlFor={`auth-website-${mode}`}>Website</label>
-        <input
-          id={`auth-website-${mode}`}
-          name="website"
-          type="text"
-          tabIndex={-1}
-          autoComplete="off"
-        />
-      </div>
 
       {errors.form && (
         <p className="auth-error" role="alert">

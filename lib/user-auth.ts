@@ -7,6 +7,7 @@ import {
 } from "node:crypto";
 import { cookies } from "next/headers";
 import { ObjectId, type Collection } from "mongodb";
+import { absoluteUrl } from "@/lib/absolute-url";
 import { getDatabase } from "@/lib/mongodb";
 
 export const SESSION_COOKIE =
@@ -232,7 +233,7 @@ export async function getCurrentUser(): Promise<SafeUser | null> {
 
 export function isSameOrigin(request: Request) {
   const origin = request.headers.get("origin");
-  const host = request.headers.get("host");
+  const host = request.headers.get("host")?.trim().toLowerCase();
   const fetchSite = request.headers.get("sec-fetch-site");
 
   if (fetchSite && fetchSite !== "same-origin" && fetchSite !== "none") {
@@ -244,13 +245,22 @@ export function isSameOrigin(request: Request) {
 
   try {
     const requestOrigin = new URL(origin).origin;
+    const requestHost = new URL(origin).host.toLowerCase();
+
+    // The browser's Origin matching the host that received the request is the
+    // authoritative same-origin check. This also allows local development when
+    // APP_ORIGIN points at the deployed site.
+    if (host && requestHost === host) {
+      return true;
+    }
+
     const configuredOrigin = process.env.APP_ORIGIN?.trim();
 
     if (configuredOrigin) {
-      return requestOrigin === new URL(configuredOrigin).origin;
+      return requestOrigin === absoluteUrl(configuredOrigin).origin;
     }
 
-    return Boolean(host) && new URL(origin).host === host;
+    return false;
   } catch {
     return false;
   }

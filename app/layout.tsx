@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { absoluteUrl } from "@/lib/absolute-url";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: absoluteUrl(process.env.NEXT_PUBLIC_SITE_URL),
   title: {
     default: "Roshan Studio — Strategy, design & engineering",
     template: "%s — Roshan Studio",
@@ -44,7 +43,12 @@ const preferenceScript = `
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" dir="ltr" suppressHydrationWarning>
+    <html
+      lang="en"
+      dir="ltr"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: preferenceScript }} />
       </head>
